@@ -25,6 +25,7 @@ describe(RstestTestRunner.name, () => {
   >;
   let userConfig: RstestUserConfig;
   let workDir: string;
+  let originalCwd: string;
 
   function createRunResult(overrides?: Partial<TestRunResult>): TestRunResult {
     return {
@@ -46,6 +47,7 @@ describe(RstestTestRunner.name, () => {
   }
 
   beforeEach(() => {
+    originalCwd = process.cwd();
     workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'stryker-rstest-'));
     process.chdir(workDir);
     userConfig = {};
@@ -63,7 +65,10 @@ describe(RstestTestRunner.name, () => {
 
   afterEach(async () => {
     await sut.dispose();
-    fs.rmSync(workDir, { recursive: true, force: true });
+    // Windows cannot remove the current working directory, and the root hook
+    // that restores it only runs after this one
+    process.chdir(originalCwd);
+    fs.rmSync(workDir, { recursive: true, force: true, maxRetries: 5 });
   });
 
   describe(RstestTestRunner.prototype.capabilities.name, () => {

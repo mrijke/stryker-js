@@ -16,26 +16,34 @@ describe('stryker-setup', () => {
     'utf8',
   );
 
-  const envVariables = [
-    '__STRYKER_MODE__',
-    '__STRYKER_NAMESPACE__',
-    '__STRYKER_MUTANT__',
-    '__STRYKER_ACTIVATION__',
-    '__STRYKER_HIT_LIMIT__',
-  ];
+  /**
+   * The environment variables the setup file reads itself.
+   *
+   * When this package is mutation tested, the file under test is instrumented,
+   * and Stryker's own instrumentation header reads the active mutant via
+   * `g.process.env.__STRYKER_ACTIVE_MUTANT__`. Those reads are not the setup
+   * file's own, hence the lookbehind.
+   */
+  const envVariablesRead = [
+    ...setupFileContents.matchAll(
+      /(?<!g\.)process\.env\.(?<name>__STRYKER_\w+)/g,
+    ),
+  ].map((match) => match.groups!.name);
 
-  for (const envVariable of envVariables) {
-    it(`should read ${envVariable} from the environment`, () => {
-      expect(setupFileContents).contains(`process.env.${envVariable}`);
-    });
-  }
+  it('should read exactly the environment variables the runner provides', () => {
+    expect([...new Set(envVariablesRead)].sort()).deep.eq([
+      '__STRYKER_ACTIVATION__',
+      '__STRYKER_HIT_LIMIT__',
+      '__STRYKER_MODE__',
+      '__STRYKER_MUTANT__',
+      '__STRYKER_NAMESPACE__',
+    ]);
+  });
 
   it('should not activate mutants via __STRYKER_ACTIVE_MUTANT__', () => {
     // That name is read by the instrumented header itself, which would make
     // every mutant statically active.
-    expect(setupFileContents).not.contains(
-      'process.env.__STRYKER_ACTIVE_MUTANT__',
-    );
+    expect(envVariablesRead).not.contains('__STRYKER_ACTIVE_MUTANT__');
   });
 
   it('should not import anything but @rstest/core', () => {
