@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "title": "StrykerRstestRunnerOptions",
+  "additionalProperties": false,
+  "properties": {
+    "rstest": {
+      "description": "Configuration for @stryker-mutator/rstest-runner",
+      "title": "RstestRunnerOptions",
+      "additionalProperties": false,
+      "type": "object",
+      "default": {},
+      "properties": {
+        "configFile": {
+          "description": "Path to the config file. Default resolving to `rstest.config.*`",
+          "type": "string"
+        },
+        "root": {
+          "description": "Configure the `-r, --root <root>` command line option. Test files are discovered relative to this directory",
+          "type": "string"
+        }
+      }
+    }
+  }
+}

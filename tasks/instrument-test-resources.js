@@ -74,6 +74,20 @@ async function main() {
   );
   await instrument(
     {
+      './packages/rstest-runner/testResources/simple-project/math.orig.ts':
+        './packages/rstest-runner/testResources/simple-project/math.ts',
+    },
+    '__stryker2__',
+  );
+  await instrument(
+    {
+      './packages/rstest-runner/testResources/infinite-loop/lib/infinite-loop.orig.js':
+        './packages/rstest-runner/testResources/infinite-loop/lib/infinite-loop.js',
+    },
+    '__stryker2__',
+  );
+  await instrument(
+    {
       './packages/vitest-runner/testResources/simple-project/math.orig.ts':
         './packages/vitest-runner/testResources/simple-project/math.ts',
     },
